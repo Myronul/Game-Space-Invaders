@@ -1,4 +1,5 @@
 Source Code and Implementation
+
 The source code is located in main.c. This is an original implementation using a custom PCB, developed as part of a university project called P2 (Project 2).
 Game Operation
 The implemented Snake game operates through interaction between the STM32 microcontroller and the display, utilizing serial SPI communication to transmit display data. The microcontroller continuously updates the LCD's display buffer, drawing game elements such as the snake and food based on the current game state and user inputs. Input from the buttons is read by the microcontroller and interpreted as movement commands for the snake (each button has implemented control logic that assigns a direction: up/down/left/right).
@@ -43,6 +44,10 @@ Snake game design logic and functions used
 Memory/resource consumption of the microcontroller
 
 1) STM32 Microprocessor Software/Firmware Settings
+
+![d13](https://github.com/user-attachments/assets/80f3c1ab-0ee9-4121-a79b-d18fb734b717)
+
+
 STM32 Microprocessor Settings - New UPDATE
 Old Configuration (Left) vs New Configuration (Right)
 As can be seen in the image above, in the project, besides the test software settings, I added additional pins for communication with the screen (SPI type) and 4 input pins. Pin A5 represents the pin that creates the clock connection between devices (Serial Clock), pin A7 (Serial Data) creates the data connection between devices, and pins PB6, PB5, and PB4 are the pins for reset, chip select, and register select. The screen uses Half Duplex Master communication, meaning that only the master sends data to the peripheral device, and not vice versa. The classic MISO pin does not exist; I will only use the MOSI pin (namely the SDA pin - Serial Data).
@@ -51,10 +56,17 @@ I will also use the external quartz clock on the board for much better performan
 Also, the already configured pins are RCC_OSC_IN/RCC_OSC_OUT PD0 which synchronize microprocessor operations with an external clock signal, TIM2_CH1 for the timer I set, PA10 and PA9 for UART communication, PA11 and PA12 for USB communication, as well as various pins for an RGB LED and RESET and USER buttons.
 Subsequent modification:
 Following the software development of the game, it reached a fairly high complexity level, so during testing I observed that there is a considerable delay regarding input reading (there is a delay not due to Debouncing but to code complexity). Therefore, I decided that input should not be handled in the standard way, with a condition being checked in a certain code area, but as a system interrupt. The buttons are now not set as normal inputs but as external system interrupts. Once I press a direction change button (event), a system interrupt will be activated, namely a special function will be called, a function in which I will change the snake's direction of movement.
-2) Libraries Used
+3) Libraries Used
 Library utilized 1 & Library utilized 2
 In software development, I used libraries specific to the st7735 screen driver, along with the main Adafruit_GFX graphics library. I added 3 source files (.c) and 3 header files (.h): st7735, GFX_FUNCTIONS, and fonts, in which the operating drivers between the screen and microcontroller are described and set. I find in this library various specific functions such as coloring pixels at certain Cartesian coordinates, coloring the entire screen, or displaying a string (character string) on the screen. Also, in the main header ST7735.h, I set the hardware configuration pins (RST, CS, RS), the type of screen used (resolution), as well as the orientation.
-3) Snake Game Design Logic and Functions Used
+4) Snake Game Design Logic and Functions Used
+
+![d10](https://github.com/user-attachments/assets/6aafb970-555c-4adc-9748-86d66cff42ff)
+
+![d11](https://github.com/user-attachments/assets/d9882394-6671-44fd-aa56-1c49b3d03ee6)
+
+![d12](https://github.com/user-attachments/assets/e579933d-e986-4b59-9543-959681afd821)
+
 Snake Game Design
 To design the classic Snake game, I need to follow the spatial/mathematical configuration of the LCD screen. The screen used has a resolution of 128x128; practically I have 128 pixels in both length and width. The coordinate axis (0,0) is the top-left corner of the screen. X and Y increase from top to bottom and from left to right.
 To create the snake on the screen, I decided through a simple calculation to divide the screen. If I have 128 pixels, I divided the screen by 8 (length and width), so I can occupy in both directions (x,y) a number of 128/8 = 16 spaces. A number of 16 spaces is sufficient for game implementation; depending on preferences, I could also choose a number of 128/4 = 32 spaces, but I considered 16 would be ideal, especially since the screen used is quite small. Therefore, food and the snake will be represented by an 8x8 pixel square, solving the screen spacing problem.
@@ -85,7 +97,7 @@ Also, to increase the game's complexity, I made it possible to pass through wall
 The buttons have been modified and will be implemented as interrupts; also, the debouncing phenomenon is eliminated through a small delay in the external interrupt function of the buttons which no longer allows direction change for at least 15ms.
 Implementation Flowchart
 [Flowchart]
-4) Microcontroller Memory/Resource Consumption
+5) Microcontroller Memory/Resource Consumption
 Resource Consumption
 The STM32F103CBT6 microcontroller has the following specifications:
 
